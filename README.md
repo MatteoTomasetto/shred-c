@@ -101,11 +101,26 @@ The *data* can be downloaded from [![DOI](https://zenodo.org/badge/DOI/10.5281/z
 ## Fluidic pinball
 `pinball.ipynb` presents the fluidic pinball test case where we reconstruct high-dimensional optimal control actions in multiple scenarios to steer a density in order to avoid dispersion and collisions with the boundaries.
 
+<p align="center" width="100%">
+  <img width=100% src="./media/pinball.gif" >
+  <br />
+</p>
+
 ## Unsteady flow control
 `flowcontrol.ipynb` presents the unsteady flow control test case where we reconstruct boundary control actions in multiple scenarios to minimize the energy dissipated by the fluid flow.
 
+<p align="center" width="100%">
+  <img width=100% src="./media/flowcontrol.gif" >
+  <br />
+</p>
+
 ## Double gyre flow tracking
 `doublegyre.ipynb` presents the double gyre flow tracking test case where we reconstruct high-dimensional optimal control actions in multiple scenarios to track the reference double gyre flow.
+
+<p align="center" width="100%">
+  <img width=100% src="./media/doublegyre.gif" >
+  <br />
+</p>
 
 ## Utilities
 `utils` folder contains auxiliary functions to preprocess and plot data, as well as to define and train SHRED-ROM. These functions are mainly based on the [pyshred](https://github.com/Jan-Williams/pyshred) repository developed by [Jan Williams](https://github.com/Jan-Williams). Moreover, it provides the solvers to generate the snapshots related to the three test cases.
