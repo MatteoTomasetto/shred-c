@@ -1,12 +1,10 @@
-# Reduced order modeling with shallow recurrent decoder networks
+# Real-time optimal control with shallow recurrent decoder networks
 
-[![Paper](https://img.shields.io/badge/PAPER-FF00FF)](http://dx.doi.org/10.1038/s41467-025-65126-y)
-[![Data](https://img.shields.io/badge/DATA-008080)](https://doi.org/10.5281/zenodo.14524524)
-[![Video](https://img.shields.io/badge/VIDEO-bdb76b)](https://www.youtube.com/watch?v=8rtGmVxfkcQ)
+[![Data](https://img.shields.io/badge/DATA-008080)](https://doi.org/10.5281/zenodo.20627878)
 
 ## Overview
 <p align="center" width="100%">
-  <img width=80% src="./media/SHRED-ROM.png" >
+  <img width=80% src="./media/SHRED-C.png" >
   <br />
 </p>
 
