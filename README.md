@@ -102,7 +102,7 @@ The *data* can be downloaded from [![DOI](https://zenodo.org/badge/DOI/10.5281/z
 `pinball.ipynb` presents the fluidic pinball test case where we reconstruct high-dimensional optimal control actions in multiple scenarios to steer a density in order to avoid dispersion and collisions with the boundaries.
 
 <p align="center" width="100%">
-  <img width=100% src="./media/pinball.gif" >
+  <img width=75% src="./media/pinball.gif" >
   <br />
 </p>
 
@@ -110,7 +110,7 @@ The *data* can be downloaded from [![DOI](https://zenodo.org/badge/DOI/10.5281/z
 `flowcontrol.ipynb` presents the unsteady flow control test case where we reconstruct boundary control actions in multiple scenarios to minimize the energy dissipated by the fluid flow.
 
 <p align="center" width="100%">
-  <img width=100% src="./media/flowcontrol.gif" >
+  <img width=75% src="./media/flowcontrol.gif" >
   <br />
 </p>
 
@@ -118,7 +118,7 @@ The *data* can be downloaded from [![DOI](https://zenodo.org/badge/DOI/10.5281/z
 `doublegyre.ipynb` presents the double gyre flow tracking test case where we reconstruct high-dimensional optimal control actions in multiple scenarios to track the reference double gyre flow.
 
 <p align="center" width="100%">
-  <img width=100% src="./media/doublegyre.gif" >
+  <img width=75% src="./media/doublegyre.gif" >
   <br />
 </p>
 
