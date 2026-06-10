@@ -8,14 +8,13 @@
   <br />
 </p>
 
-
-*SHallow REcurrent Decoder-based Reduced Order Model* (SHRED-ROM) is an ultra-hyperreduced order modeling framework aiming at reconstructing high-dimensional data from limited sensor measurements in multiple scenarios. Thanks to the composition of a Long-Short Term Memory network (LSTM) and a Shallow Decoder Network (SDN), SHRED-ROM is capable of
+*SHallow REcurrent Decoder-based Reduced Order Model* (SHRED-ROM) is an ultra-hyperreduced order modeling framework aiming at reconstructing high-dimensional data from limited sensor measurements in multiple scenarios. In this work, we employ SHRED-ROM in the context of imitation learning to solve high-dimensional and parametric optimal control problems in real-time. Thanks to the composition of a Long-Short Term Memory network (LSTM) and a Shallow Decoder Network (SDN), SHRED-ROM is capable of
 - Reconstructing high-dimensional optimal control actions from sparse state sensor measurements in new scenarios unseen during training, regardless of sensor placement,
-- Dealing with both physical, geometrical and time-dependent parametric dependencies, while being agnostic to the paraemter values,
-- Estimating high-dimensional controlled state dynamics,
+- Dealing with both physical, geometrical and time-dependent parametric dependencies, while being agnostic to the parameter values,
+- Estimating the corresponding high-dimensional controlled state dynamics,
 - Coping with both fixed or mobile sensors.
 
-Importantly, computational efficiency and memory usage are enhanced by reducing the dimensionality of full-order snapshots, allowing for compressive training of the networks, with minimal hyperparameter tuning and laptop-level computing.
+Importantly, computational efficiency and memory usage are enhanced by reducing the dimensionality of full-order snapshots through Proper Orthogonal Decomposition (POD), allowing for compressive training of the networks, with minimal hyperparameter tuning and laptop-level computing.
 
 
 ## Quickstart
