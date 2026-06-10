@@ -26,14 +26,6 @@ import numpy as np
 ```
 
 ```python
-# Problem definition
-
-from utils.problem import Problem
-
-problem = Problem(...)
-```
-
-```python
 # Data loading and train-validation-test splitting
 
 from utils.datamanager import DataManager
@@ -117,4 +109,4 @@ The *data* can be downloaded from [![DOI](https://zenodo.org/badge/876283884.svg
 `doublegyre.ipynb` presents the double gyre flow tracking test case where we reconstruct high-dimensional optimal control actions in multiple scenarios to track the reference double gyre flow.
 
 ## Utilities
-`utils` folder contains auxiliary functions to preprocess and plot data, as well as to define and train SHRED-ROM. These functions are mainly based on the [pyshred](https://github.com/Jan-Williams/pyshred) repository developed by [Jan Williams](https://github.com/Jan-Williams). Moreover, it provides the utilities and the solvers related to the three test cases.
+`utils` folder contains auxiliary functions to preprocess and plot data, as well as to define and train SHRED-ROM. These functions are mainly based on the [pyshred](https://github.com/Jan-Williams/pyshred) repository developed by [Jan Williams](https://github.com/Jan-Williams). Moreover, it provides the solvers to generate the snapshots related to the three test cases.
