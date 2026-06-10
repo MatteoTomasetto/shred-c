@@ -97,7 +97,7 @@ pip install -r requirements.txt
 Some test cases required FEniCS and FEniCS-Adjoint to generate and handle function data. [Click here](https://fenicsproject.org/download/archive/) and [here](https://www.dolfin-adjoint.org/en/latest/download/index.html) for installation instructions.
 
 ## Data
-The *data* can be downloaded from [![DOI](https://zenodo.org/badge/876283884.svg)](https://doi.org/10.5281/zenodo.20627878). We provide both the generated data and the trained models to replicate the results presented in the manuscript in few minutes.
+The *data* can be downloaded from [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20627878.svg)](https://doi.org/10.5281/zenodo.20627878). We provide both the generated data and the trained models to replicate the results presented in the manuscript in few minutes.
 
 ## Fluidic pinball
 `pinball.ipynb` presents the fluidic pinball test case where we reconstruct high-dimensional optimal control actions in multiple scenarios to steer a density in order to avoid dispersion and collisions with the boundaries.
