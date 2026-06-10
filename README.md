@@ -10,11 +10,11 @@
 
 
 *SHallow REcurrent Decoder-based Reduced Order Model* (SHRED-ROM) is an ultra-hyperreduced order modeling framework aiming at reconstructing high-dimensional data from limited sensor measurements in multiple scenarios. Thanks to the composition of a Long-Short Term Memory network (LSTM) and a Shallow Decoder Network (SDN), SHRED-ROM is capable of
-- Reconstructing high-dimensional data (such as synthetic or video data) from sparse sensor measurements in new scenarios unseen during training, regardless of sensor placement,
+- Reconstructing high-dimensional optimal control actions from sparse state sensor measurements in new scenarios unseen during training, regardless of sensor placement,
 - Dealing with both physical, geometrical and time-dependent parametric dependencies, while being agnostic to the paraemter values,
-- Estimating unknown parameters,
+- Estimating high-dimensional controlled state dynamics,
 - Coping with both fixed or mobile sensors.
-  
+
 Importantly, computational efficiency and memory usage are enhanced by reducing the dimensionality of full-order snapshots, allowing for compressive training of the networks, with minimal hyperparameter tuning and laptop-level computing.
 
 
@@ -23,56 +23,50 @@ Importantly, computational efficiency and memory usage are enhanced by reducing 
 ```python
 import torch
 import numpy as np
-from sklearn.utils.extmath import randomized_svd
-from utils.processdata import mre, num2p                  # Error metrics and format
-from utils.processdata import Padding, TimeSeriesDataset  # Data preprocessing
-from utils.models import SHRED, fit                       # SHRED-ROM model and training
 ```
 
 ```python
-# Generate or import data
+# Problem definition
 
-states = ... # Generate or import the state snapshots as a torch.tensor with shape [nparameters, ntimesteps, nstate]
-sensors = ... # Generate, import or extract the sensor data as a torch.tensor with shape [nparameters, ntimesteps, nsensors]
-nparameters, ntimesteps, nstate = states.shape 
-nsensors = sensors.shape[2]
+from utils.problem import Problem
+
+problem = Problem(...)
 ```
 
 ```python
-# Train-validation-test splitting
+# Data loading and train-validation-test splitting
 
-np.random.seed(0)
-ntrain = round(0.8 * nparameters)
-idx_train = np.random.choice(nparameters, size = ntrain, replace = False)
-mask = np.ones(nparameters)
-mask[idx_train] = 0
-idx_valid_test = np.arange(0, nparameters)[np.where(mask!=0)[0]]
-idx_valid = idx_valid_test[::2]
-idx_test = idx_valid_test[1::2]
-nvalid = idx_valid.shape[0]
-ntest = idx_test.shape[0]
+from utils.datamanager import DataManager
+
+datamanager = DataManager(np.load("data/file.npz"),
+                          train_ratio = 0.8,
+                          valid_ratio = 0.1,
+                          test_ratio = 0.1)
+
+datamanager.prepare()
 ```
 
 ```python
-# Proper Orthogonal Decomposition
+# Data compression
 
-r = ... # Define the number of POD modes
-U, S, V = randomized_svd(states[idx_train].reshape(-1, nstate).numpy(), n_components = r) 
-states_POD = states @ V.transpose()
+k = ... # Define the compressed dimension
+datamanager.POD(ranks = {'control': k})
 ```
 
 ```python
 # Padding and lagging
 
+from utils.datamanager import Padding, TimeSeriesDataset
+
 lag = ... # Define the lag parameter
 
-train_data_in = Padding(sensors[idx_train], lag)
-valid_data_in = Padding(sensors[idx_valid], lag)
-test_data_in = Padding(sensors[idx_test], lag)
+train_data_in = Padding(sensors_data_train, lag).to(device)
+valid_data_in = Padding(sensors_data_valid, lag).to(device)
+test_data_in = Padding(sensors_data_test, lag).to(device)
 
-train_data_out = Padding(states_POD[idx_train], 1).squeeze(1)
-valid_data_out = Padding(states_POD[idx_valid], 1).squeeze(1)
-test_data_out = Padding(states_POD[idx_test], 1).squeeze(1)
+train_data_out = Padding(datamanager.data_POD["control"][datamanager.train] ,1).squeeze(1)
+valid_data_out = Padding(datamanager.data_POD["control"][datamanager.valid] ,1).squeeze(1)
+test_data_out = Padding(datamanager.data_POD["control"][datamanager.test] ,1).squeeze(1)
 
 train_dataset = TimeSeriesDataset(train_data_in, train_data_out)
 valid_dataset = TimeSeriesDataset(valid_data_in, valid_data_out)
@@ -82,98 +76,45 @@ test_dataset = TimeSeriesDataset(test_data_in, test_data_out)
 ```python
 # SHRED-ROM training
 
-shred = SHRED(nsensors, r, hidden_size = 64, hidden_layers = 2, decoder_sizes = [350, 400], dropout = 0.1)
-train_errors, valid_errors = fit(shred, train_dataset, valid_dataset, batch_size = 64, epochs = 100, lr = 1e-2, verbose = True, patience = 10)
+from utils.models import SHRED, fit
+
+nlatent = 64
+shred = SHRED(nsensors, k, hidden_size = nlatent, hidden_layers = 2, decoder_sizes = [350, 400], dropout = 0.1)
+train_errors, valid_errors = fit(shred, train_dataset, valid_dataset, batch_size = 64, epochs = 500, lr = 1e-3, verbose = True, patience = 100)
 ```
 
 ```python
 # SHRED-ROM evaluation
 
+from utils.postprocessing import mre_numpy, num2p
+
 shred.freeze()
-states_POD_test_hat = shred(test_data_in)
-states_POD_test_hat = (states_POD_test_hat @ V).reshape(ntest, ntimesteps, nstate)
-print("Mean relative SHRED-ROM reconstruction error: %s." % num2p(mre(states[idx_test], states_POD_test_hat)))
+
+shred_pred = shred(test_data_in)
+
+data_test_pred = datamanager.decode(data_POD = {'control': shred_pred})
+
+print(f"Mean relative SHRED-ROM reconstruction error: {num2p(mre_numpy(datamanager.data['control'][datamanager.test], data_test_pred['control']))}")
 ```
-
-## Tutorials
-`DrugDiffusionModel.ipynb` presents a stand-alone SHRED-ROM application to a three-compartments drug diffusion model where we reconstruct the amount of drug in highly and poorly perfused tissues starting from the drug concentration in the blood, while considering different drug elimination rates.
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MatteoTomasetto/SHRED-ROM/blob/main/DrugDiffusionModel.ipynb)
-
-`DoubleGyreFlow.ipynb` presents a stand-alone SHRED-ROM application to the double gyre flow model where we reconstruct the velocity fields of two interacting vortices starting from few sensor measurements of the horizontal velocity, while considering different perturbation amplitudes and frequencies, as well as POD-based and Fourier-based compressive training strategies.
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/MatteoTomasetto/SHRED-ROM/blob/main/DoubleGyreFlow.ipynb)
 
 ## Getting started
 The required packages are listed in  the `requirements.txt` file and may be installed in few minutes through the command 
 ```bash
 pip install -r requirements.txt
 ```
-Some test cases required FEniCS to generate and handle function data. [Click here](https://fenicsproject.org/download/archive/) for installation instructions.
+Some test cases required FEniCS and FEniCS-Adjoint to generate and handle function data. [Click here](https://fenicsproject.org/download/archive/) and [here](https://www.dolfin-adjoint.org/en/latest/download/index.html) for installation instructions.
 
 ## Data
-The *data* can be downloaded from [![DOI](https://zenodo.org/badge/876283884.svg)](https://doi.org/10.5281/zenodo.14524524). We provide both the generated data and the trained SHRED-ROMs to replicate the results presented in the manuscript in few minutes.
-
-## Shallow Water
-`SWE.ipynb` presents the Shallow Water test case where we reconstruct the high-dimensional velocity on a sphere, whose dynamics is described by the Shallow Water Equations, starting from few sensor data.
-
-<p align="center" width="100%">
-  <img width=80% src="./media/SWE.gif" >
-  <br />
-</p>
-
-## GoPro physics
-`GoPro.ipynb` presents GoPro physics test case where we reconstruct high-dimensional videos starting from few pixel data.
-
-<p align="center" width="100%">
-  <img width=100% src="./media/GoPro.gif" >
-  <br />
-</p>
-
-## Kuramoto-Sivashinsky
-`KuramotoSivashinsky.ipynb` presents the Kuramoto-Sivashinsky test case where we reconstruct the high-dimensional state, whose dynamics is described by the Kuramoto-Sivashinsky equation, starting from few sensor data while considering different viscosities and initial conditions.
-
-<p align="center" width="100%">
-  <img width=100% src="./media/KuramotoSivashinsky.gif" >
-  <br />
-</p>
+The *data* can be downloaded from [![DOI](https://zenodo.org/badge/876283884.svg)](https://doi.org/10.5281/zenodo.20627878). We provide both the generated data and the trained models to replicate the results presented in the manuscript in few minutes.
 
 ## Fluidic pinball
-`Pinball.ipynb` presents the fluidic pinball test case where we reconstruct the high-dimensional density, whose dynamics is described by the advection-diffusion partial differential equation, starting from few sensor data while considering different velocities of the three rotating cylinders.
+`pinball.ipynb` presents the fluidic pinball test case where we reconstruct high-dimensional optimal control actions in multiple scenarios to steer a density in order to avoid dispersion and collisions with the boundaries.
 
-<p align="center" width="100%">
-  <img width=80% src="./media/Pinball.gif" >
-  <br />
-</p>
+## Unsteady flow control
+`flowcontrol.ipynb` presents the unsteady flow control test case where we reconstruct boundary control actions in multiple scenarios to minimize the energy dissipated by the fluid flow.
 
-## Flow around an obstacle
-`FlowAroundObstacle.ipynb` presents the flow around an obstacle test case where we reconstruct the high-dimensional velocity, whose dynamics is described by the unsteady Navier-Stokes equations, starting from few sensor data while considering different inflow conditions and obstacle geometries.
-
-<p align="center" width="100%">
-  <img width=50% src="./media/FlowAroundObstacle.gif" >
-  <img width=40% src="./media/FlowAroundObstacle_paramestimation.gif" >
-  <br />
-</p>
+## Double gyre flow tracking
+`doublegyre.ipynb` presents the double gyre flow tracking test case where we reconstruct high-dimensional optimal control actions in multiple scenarios to track the reference double gyre flow.
 
 ## Utilities
-`utils` folder contains auxiliary functions to preprocess and plot data, as well as to define and train SHRED-ROM. These functions are mainly based on the [pyshred](https://github.com/Jan-Williams/pyshred) repository developed by [Jan Williams](https://github.com/Jan-Williams).
-
----
-
-## Cite
-If you use this code for your work, please cite
-```bibtex
-@article{Tomasetto2025,
-  title = {Reduced order modeling with shallow recurrent decoder networks},
-  volume = {16},
-  ISSN = {2041-1723},
-  url = {http://dx.doi.org/10.1038/s41467-025-65126-y},
-  DOI = {10.1038/s41467-025-65126-y},
-  number = {1},
-  journal = {Nature Communications},
-  publisher = {Springer Science and Business Media LLC},
-  author = {Tomasetto, Matteo and Williams, Jan P. and Braghin, Francesco and Manzoni, Andrea and Kutz, J. Nathan},
-  year = {2025},
-  month = nov 
-}
-```
+`utils` folder contains auxiliary functions to preprocess and plot data, as well as to define and train SHRED-ROM. These functions are mainly based on the [pyshred](https://github.com/Jan-Williams/pyshred) repository developed by [Jan Williams](https://github.com/Jan-Williams). Moreover, it provides the utilities and the solvers related to the three test cases.
