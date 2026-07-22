@@ -125,3 +125,17 @@ The *data* can be downloaded from [![DOI](https://zenodo.org/badge/DOI/10.5281/z
 
 ## Utilities
 `utils` folder contains auxiliary functions to preprocess and plot data, as well as to define and train SHRED-ROM. These functions are mainly based on the [pyshred](https://github.com/Jan-Williams/pyshred) repository developed by [Jan Williams](https://github.com/Jan-Williams). Moreover, it provides the solvers to generate the snapshots related to the three test cases.
+
+## Cite
+If you use this code for your work, please cite
+```bibtex
+@misc{shred-c,
+      title={Real-time optimal control with shallow recurrent decoder networks}, 
+      author={Matteo Tomasetto and Francesco Braghin and J. Nathan Kutz and Andrea Manzoni},
+      year={2026},
+      eprint={2607.19302},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2607.19302}, 
+}
+```
