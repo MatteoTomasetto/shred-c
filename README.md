@@ -1,5 +1,6 @@
 # Real-time optimal control with shallow recurrent decoder networks
 
+[![Paper](https://img.shields.io/badge/PAPER-FF00FF)](https://arxiv.org/abs/2607.19302)
 [![Data](https://img.shields.io/badge/DATA-008080)](https://doi.org/10.5281/zenodo.20627878)
 
 ## Overview
